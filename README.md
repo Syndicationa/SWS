@@ -1,2 +1,2 @@
-# SWS-V3
- Solar Wars Strategy Version 3
+# SWS
+ Solar Wars Strategy
