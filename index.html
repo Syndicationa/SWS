@@ -1,0 +1,175 @@
+<html>
+	<head>
+		<title>SWS V3.0</title>
+		<link rel="stylesheet" href="styles.css">
+		<meta charset="UTF-8">
+	</head>
+	<body>
+		<div id="Begin" hidden>
+			<button class="selector NA">Solo Play<div class="NA">Not Currently Available</div></button>
+			<button class="selector">Discord Play<div style="font-size: 1rem;">Functional</div></button>
+			<button class="selector NA">Online Play<div class="NA">Not Currently Available</div></button>
+		</div>
+		<div id="Game">
+			<main>
+				<canvas id="GameBoard" width="1280" height="1280" class="gameboard">It doesn't work</canvas>
+				<img id="Stars" src="images/Star0.png" hidden />
+				<div id="ShipList"><h3>ShipList:</h3><ul></ul></div>
+				<div id="Info"><h3>Information:</h3><div></div></div>
+				<div id="Buttons">
+					<button id="ZoomIn" type="button" class="bgrid">Zoom In</button>
+					<button id="ZoomOut" type="button" class="bgrid">Zoom Out</button>
+					<button id="Back" type="button" class="bgrid">Back</button>
+					<button id="InfoButton" type="button" class="bgrid">Info</button>
+					<button id="EndTurn" type="button" class="bgrid">End Turn</button>
+				</div>
+				<div id="IO">
+					<input type="text" id="Output" class="TextBox" readonly></input>
+					<button type = "button" class="button" id="CopyText">Copy String:</button>
+					<br><hr><br>
+					<label for="Input" id="InputName">Player 1:</label>
+					<input type="text" id="Input" class="TextBox"></input>
+					<button type="button" class="button" id="SetInput">Enter</button>
+				</div>
+				<footer id="Stage">
+					<div class="stageItem active">Place Ships</div> >> 
+					<div class="stageItem">Move Phase</div> >>
+					<div class="stageItem">Attack Phase 1/X</div> >>
+					<div class="stageItem">Move Phase</div> >>
+					<div class="stageItem">Attack Phase 1/X</div> >>
+					<div class="stageItem">Move Phase</div> >>
+					<div class="stageItem">Attack Phase 1/X</div> >>
+					<div class="stageItem">Move Phase</div> >>
+					<div class="stageItem">Attack Phase 1/X</div>
+
+					<button id="Menu"></button>
+				</footer>
+			</main>
+			<canvas id="GridHome" width="1280" height="1280" class = "gameboard"></canvas>
+		</div>
+
+		<div id="Main" hidden>
+			<h3>Solar Wars Strategy</h3>
+			<div id="DataOut">
+			</div>
+			<!--br-->
+			<div id="DataInputBoxes">
+				<div id="P1">
+					<label for="PlayerInput">Player 1:</label>
+					<input id="PlayerInput" class="inputboxes"></input>
+					<button id="DeletePlayer" type="button" class="delButton" onclick="delPlayer()">X</button>
+				</div>
+			</div>
+			<div id="DataIn">
+				<!--button id="Collapse" type="button" class="button">Collapse Inputs</button-->
+				<button id="updateData" type="button" class="button">Update</button>
+				<button id="AIPlayer" type="button" class="button">Add AI Player</button>
+			</div>
+			<br />
+			<button id="MenuToggle" type="button" class="button">Menu V</button>
+			<div id="Controls">
+				<label for="PlayerCount">Player Count:</label>
+				<input id="PlayerCount" value="2" class="numbox" type="number"></input>
+				<button id="updatePCount" type="button" class="button">Update</button>
+				<br>
+				Saves will return...
+			</div>
+		</div>
+		
+		<div id="Settings">
+			<nav id="SettingTypes">
+				<button id="GameSet" class="active">Game Settings</button>
+				<button id="PlayerSet">Players</button>
+				<button id="AudioSet">Music & Sounds</button>
+				<button id="ControlSet">Controls</button>
+				<button id="LoadSave">Load/Save</button>
+				<button id="Return"></button>
+			</nav>
+			<div id="SettingOptions">
+				<header><h3>Settings</h3></header>
+				<div id="GameSettings" class="SettingOptions">
+					<header><h4>Game Settings</h4></header>
+					<div id="BoardSize"><h5>Board Size</h5>
+					<label for="LayerCount">Number of Layers: </label>
+					<input id="LayerCount" value = "1" class="numbox" type="number" min="1" max="256">
+					<button id="updateLayers" type="button" class="button">Update</button>
+					<br><hr><br>
+					<div id="BoardLayers">
+						<label for="L1Size">Size of Layer 1(Val x Val): </label>
+						<input id="L1Size" value = "32" class="numbox" type="number" min="1" max="256">
+						<button id="updateL1Size" type="button" class="button">Update</button>
+					</div>
+				</div>
+				<hr>
+				<div id="PlayerCount"><h5>Player Count</h5>
+				<label for="HumanPlayers">Human Player Count:</label>
+				<input id="HumanPlayers" value="1" class="numbox" type="number" min="0" max="12">
+				<button id="updateHPlay" type="button" class="button">Update</button>
+				<br><hr><br>
+				<label for="CompPlayers">Computer Player Count:</label>
+				<input id="CompPlayers" value="0" class="numbox" type="number" min="0" max="12">
+				<button id="updateCPlay" type="button" class="button">Update</button>
+				</div>
+				<hr>
+				<div id="GameType">
+					<h5>Game Options</h5>
+					<label for="GType">Game Type:</label>
+					<select id="GType" class="selectors"></select>
+					<br><hr><br>
+					<label for="MovStyl">Movement Style:</label>
+					<select id="MovStyl" class="selectors"></select>
+				</div>
+				<hr>
+				<button id="ExportGameSettings" type="button" class="button">Export Game Settings</button>
+				<br>
+				<button id="ImportGameSettings" type="button" class="button">Import Game Settings</button>
+			</div>
+				<div id="PlayerSettings" class="SettingOptions" hidden>
+					<header><h4>Players</h4></header>
+				</div>
+				<div id="AudioSettings" class="SettingOptions" hidden>
+					<header><h4>Music & Sounds</h4></header>
+					<div id="Sound"><label for="Sounds">Sound Effects:</label><input type="range" min="0" max="10" value="10" id="Sounds"></button></div>
+				</div>
+				<div id="ControlSettings" class="SettingOptions" hidden>
+					<header><h4>Controls</h4></header>
+					<div id="ControlUp">Up:<button id="KC0"></button></div>
+					<hr>
+					<div id="ControlDown">Down:<button id="KC1"></button></div>
+					<hr>
+					<div id="ControlLeft">Left:<button id="KC2"></button></div>
+					<hr>
+					<div id="ControlRight">Right:<button id="KC3"></button></div>
+					<hr>
+					<div id="ControlAction">Action:<button id="KC4"></button></div>
+					<hr>
+					<div id="ControlBack">Back:<button id="KC5"></button></div>
+					<hr>
+					<div id="ControlInfo">Info:<button id="KC6"></button></div>
+					<hr>
+					<div id="ControlEndTurn">End Trun:<button id="KC7"></button></div>
+					<hr>
+					<div id="ControlZoomIn">Zoom In:<button id="KC8"></button></div>
+					<hr>
+					<div id="ControlZoomOut">Zoom Out:<button id="KC9"></button></div>
+				</div>
+				<div id="LoadingSaving" class="SettingOptions" hidden>
+					<header><h4>Load/Save</h4></header>
+				</div>
+			</div>
+		</div>
+		
+		<audio id="pressSound" src="sounds/press.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+		<audio id="moveSound" src="sounds/mov.wav" type="audio/wav"></audio>
+		<audio id="backSound" src="sounds/back.wav" type="audio/wav"></audio>
+		<audio id="destroySound" src="sounds/kaboom.wav" type="audio/wav"></audio>
+
+		<script src="js/jQuery.js"></script>
+		<script src="js/update.js"></script>
+		<script src="js/defs.js"></script>
+		<script src="js/board.js"></script>
+		<script src="js/control.js"></script>
+		<script src="js/IO.js"></script>
+		<script src="js/start.js"></script>
+	</body>
+</html>	
