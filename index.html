@@ -122,7 +122,8 @@
 				<hr>
 				<button id="ExportGameSettings" type="button" class="button">Export Game Settings</button>
 				<br>
-				<button id="ImportGameSettings" type="button" class="button">Import Game Settings</button>
+				<button id="ImportGameSettings" type="button" class="button" onclick="">Import Game Settings</button>
+				<input id="ImportGameFile" type="file" accept=".txt" style="visibility: hidden;"></button>
 			</div>
 				<div id="PlayerSettings" class="SettingOptions" hidden>
 					<header><h4>Players</h4></header>
@@ -165,6 +166,7 @@
 		<audio id="destroySound" src="sounds/kaboom.wav" type="audio/wav"></audio>
 
 		<script src="js/jQuery.js"></script>
+		<script src="js/FileSaver.js"></script>
 		<script src="js/update.js"></script>
 		<script src="js/defs.js"></script>
 		<script src="js/board.js"></script>

@@ -522,6 +522,80 @@ function updateKeyCodes () {
 
 //Loading and Saving
 
+const inp = document.getElementById("ImportGameFile");
+document.getElementById("ImportGameSettings").onclick = () => inp.click();
+inp.addEventListener('change', read);
+
+function read() {
+	const reader = new FileReader();
+	reader.addEventListener("load", () => {
+		updateSettings(reader.result);
+	}, false);
+	reader.removeEventListener("load",() => {
+		updateSettings(reader.result);
+	});
+	reader.readAsText(inp.files[0]);
+}
+
+function updateSettings(string) {
+	let [layerstr,playstr,gmeMode,movem,vol,contrstr] = string.split(".");
+	//Layers
+	grSize = JSON.parse(layerstr);
+	document.getElementById("LayerCount").value = grSize.length;
+	updateLayerData();
+
+	//Players
+	let plays = JSON.parse(playstr);
+	Players = [];
+	plays.forEach((player,index) => {
+		Players.push(new Player(index, player.isAI, player.Faction));
+		Players[index].Name = player.Name;
+		Players[index].Color = player.Color;
+	});
+	document.getElementById("HumanPlayers").value = Players.filter((val) => !val.isAI).length;
+	document.getElementById("CompPlayers").value = Players.filter((val) => val.isAI).length;
+	updatePlayerSettings();
+
+	//GameMode
+	gameMode = gmeMode;
+	document.getElementById("GType").value = gmeMode;
+
+	//Movement
+	movType = Number(movem);
+	document.getElementById("MovStyl").value = movType;
+
+	//Volume
+	let value = Number(vol)/10;
+	document.getElementById("Sounds").value = value*10;
+	mov.volume = value;
+	press.volume = value;
+	backSound.volume = value;
+	destroy.volume = value;
+
+	//Controls
+	keyCodes = JSON.parse(contrstr);
+	changeKeyCode = -1;
+	updateKeyCodes();
+}
+
+document.getElementById("ExportGameSettings").onclick = () => writeSettings();
+
+function writeSettings() {
+	let layers = JSON.stringify(grSize);
+	let plays = [];
+	Players.forEach((player) => {
+		plays.push({Name: player.Name, Faction: player.Faction, Color: player.Color, isAI: player.isAI});
+	})
+	let playstr = JSON.stringify(plays);
+	let gmeMode = gameMode;
+	let movem = movType;
+	let vol = mov.volume*10;
+	let controls = JSON.stringify(keyCodes);
+
+	const settings = `${layers}.${playstr}.${gmeMode}.${movem}.${vol}.${controls}`;
+	const blob = new Blob([settings],{type: "text/plain;charset=utf-8"});
+	saveAs(blob, "Settings.txt");
+}
 
 //Output
 function dispData () {
