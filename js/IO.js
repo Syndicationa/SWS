@@ -1,15 +1,15 @@
 function input(dx,dy) {
 	if (dx == 0 && dy == 0) {
 		pressButton();
-		easterEgg("A");
+		easterEgg("a");
 	} else {
 		moveCursor(dx,dy);
 		if (dx == 0) {
-			let dirstr = ["U","D"]
+			let dirstr = ["u","d"]
 			dirnum = (dy + 1)/2;
 			easterEgg(dirstr[dirnum]);
 		} else {
-			let dirstr = ["L","R"]
+			let dirstr = ["l","r"]
 			dirnum = (dx + 1)/2;
 			easterEgg(dirstr[dirnum]);
 		}
@@ -125,18 +125,23 @@ function Zoom (val) {
 	updateGrid();
 }
 
+let astley = true;
+let oAstley = true;
+//let movStr = "u        u";
+
 function easterEgg(str) {
-	return;
+	let infoDoc = document.getElementById("Info");
 	movStr = movStr.slice(1) + str;
-	if (movStr == "uuddlrlrba") {
+	if (movStr.slice(2) === "uuddlrlr") {
 		console.log("Trans Rights");
-		document.getElementById("Info").innerHTML = "Trans Rights";
+		infoDoc.innerText = "Trans Rights";
 	} else if (movStr.slice(2) == "uulrlrdd") {
+		return;
 		console.log("Working");
 		endingFaction = 5;
 		updateHTML();
 	} else if (movStr.split("u").length == 1 && astley) {
-		document.getElementById("Info").innerHTML = "Astley Ready";
+		infoDoc.innerText = "Astley Ready";
 		let root = document.querySelector(':root');
 	} else if ((!movStr.includes("u")) && astley) {
 		console.log("hhhhhhhhhhhh");
@@ -145,7 +150,9 @@ function easterEgg(str) {
 		oAstley = false;
 	} else if (movStr.split("u").length - 1 == movStr.length && oAstley) {
 		astley = false;
-		document.getElementById("Info").innerHTML = "Astley Offline";
+		infoDoc.innerText = "Astley Offline";
+	} else {
+
 	}
 }
 
@@ -378,8 +385,7 @@ document.getElementById("MovStyl").onchange = () => movType = Number(MovStyl.val
 
 function updatePlayerSettings() {
 	const playSet = document.getElementById("PlayerSettings");
-	playSet.removeChild(playSet.lastChild);
-	playSet.removeChild(playSet.lastChild);
+	playSet.innerHTML = "";
 
 	const hPlayers = document.createElement("div");
 	hPlayers.style.width = "50%";
@@ -398,6 +404,7 @@ function updatePlayerSettings() {
 	cPlayers.appendChild(title);
 
 	Players.forEach((player, i) => {
+		player.playerNum = i;
 		const playerObj = document.createElement("div");
 		playerObj.classList.add("player");
 		playerObj.style.border = "1px #444 solid";
@@ -595,6 +602,194 @@ function writeSettings() {
 	const settings = `${layers}.${playstr}.${gmeMode}.${movem}.${vol}.${controls}`;
 	const blob = new Blob([settings],{type: "text/plain;charset=utf-8"});
 	saveAs(blob, "Settings.txt");
+}
+
+let dataStr = "";
+let infoStr = "";
+
+function createSaveData () {
+	infoStr = Players.reduce((prev, curr, i, arr) => {
+		let newStr = curr.Name;
+		if (i + 1 < arr.length) {
+			newStr += " vs. ";
+		}
+		return prev + newStr;
+	}, "FS: ");
+	let playData = [];
+	for (let x = 0; x < Players[0].moves.length; x++) {
+		let nArray = Players.map((player) => player.moves[x]);
+		playData.push(nArray);
+	}
+
+	dataStr = "FS." + JSON.stringify(playData);
+}
+
+function createQuickSave () {
+	infoStr = Players.reduce((prev, curr, i, arr) => {
+		let newStr = curr.Name;
+		if (i + 1 < arr.length) {
+			newStr += " vs. ";
+		}
+		return prev + newStr;
+	}, "QS: ");
+	const playData = Players.map((player) => {
+		return {ShipList: player.ShipList, Name: player.Name, 
+			Faction: player.Faction, Color: player.Color,
+			isAI: player.isAI, playerNum: player.playerNum,
+			curAP: curAP, AP: player.AP, hasMoved: player.hasMoved};
+	});
+	dataStr = `QS.${stage}.${nStage}.${JSON.stringify(playData)}`;
+}
+
+function localSaveData () {
+	if (typeof(Storage) === "undefined") return;
+	let id = JSON.parse(localStorage.getItem("Saves"));
+	if (id === null) id = [];
+	let info = JSON.parse(localStorage.getItem("Information"));
+	if (info === null) info = [];
+	const d = new Date();
+	const time = d.getTime();
+
+	localStorage.setItem(time,dataStr);
+
+	id.push(time);
+	info.push(infoStr);
+
+	localStorage.setItem("Saves",JSON.stringify(id));
+	localStorage.setItem("Information", JSON.stringify(info));
+
+	updateSaves();
+}
+
+function downloadSaveData () {
+	const blob = new Blob([dataStr],{type: "text/plain;charset=utf-8"});
+	saveAs(blob, "Save.txt");
+}
+
+const upload = document.getElementById("UploadSaveFile");
+document.getElementById("USave").onclick = () => upload.click();
+upload.addEventListener('change', uploadSaveData);
+
+function uploadSaveData() {
+	const reader = new FileReader();
+	reader.addEventListener("load", () => {
+		loadSaveData(reader.result);
+	}, false);
+	reader.removeEventListener("load",() => {
+		loadSaveData(reader.result);
+	});
+	reader.readAsText(upload.files[0]);
+}
+
+function loadSaveData(string = String) {
+	if (string.slice(0,3) === "FS.") {
+		string = string.slice(3);
+		console.log(string)
+		let arr = JSON.parse(string);
+		Players = [];
+		stage = 0;
+		arr[0].forEach((player,i) => {
+			Players.push(new Player(i,false, "Astute"))
+		});
+
+		updatePlayerSettings();
+
+		arr.forEach(move => {
+			endTurn();
+			Players[0].moves.pop();
+			move.forEach((plmove, j) => {
+				Players[j].runMove(plmove);
+			});
+			updateInputBox();
+		});
+
+	} else {
+		string = string.slice(3);
+		let [stge, nStge, pData] = string.split(".");
+		pData = JSON.parse(pData);
+		Players = [];
+		stage = Number(stge);
+		nStage = Number(nStge);
+		pData.forEach((pDatum,i) => {
+			Players.push(new Player(i, pDatum.isAI ,pDatum.Faction));
+			play = Players[i];
+			pDatum.ShipList.forEach((ship,j) => {
+				let tShip = new Ship(i,j,ship.faction,ship.type,[...ship.sector,ship.position],ship.rot);
+				tShip.HP = ship.HP;
+				tShip.oldHP = ship.oldHP;
+				tShip.Weap = ship.Weap;
+				tShip.dX = ship.dX;
+				tShip.dY = ship.dY;
+				tShip.moved = ship.moved;
+				tShip.checkDefenses();
+				play.ShipList.push(tShip);
+			})
+			play.Name = pDatum.Name;
+			play.Faction = pDatum.Faction;
+			play.Color = pDatum.Color;
+			play.isAI = pDatum.isAI;
+			play.playerNum = pDatum.playerNum;
+			play.hasMoved = pDatum.hasMoved;
+			curAP = pDatum.curAP, 
+			play.AP = pDatum.AP;
+		})
+		if (stge === 8 || stge === 28) {
+			updateInputBox();
+		}
+	}
+}
+
+function updateSaves() {
+	let cSaves = document.getElementById("CurrSaves");
+	cSaves.innerHTML = "";
+	if (typeof(Storage) !== "undefined") {
+		let id = JSON.parse(localStorage.getItem("Saves"));
+		let data = JSON.parse(localStorage.getItem("Information"))
+		if (id == null) id = [];
+
+		id.forEach((val, i) => {
+			const saveObj = document.createElement("div");
+			const sName = document.createElement("a");
+			sName.innerText = data[i];
+			sName.style.fontSize = "2.5rem";
+			sName.style.gridArea = "Name";
+			sName.style.border = "none";
+			sName.style.borderBottom = "1px #444 solid";
+			saveObj.appendChild(sName);
+
+			const load = document.createElement("button");
+			load.innerText = "Load";
+			load.style.border = "none";
+			load.style.borderRight = "1px #444 solid";
+			load.style.gridArea = "Load";
+			saveObj.appendChild(load);
+
+			const del = document.createElement("button");
+			del.innerText = "Delete";
+			del.style.color = "#BB4444";
+			del.style.border = "none";
+			del.style.gridArea = "Delete";
+			saveObj.appendChild(del);	
+
+			load.onclick = () => {
+				const datum = localStorage.getItem(val);
+				loadSaveData(datum);
+			};
+			
+			del.onclick = () => {
+				localStorage.removeItem(val);
+				data.splice(i,1);
+				id.splice(i,1);
+				localStorage.setItem("Saves",JSON.stringify(id));
+				localStorage.setItem("Information",JSON.stringify(data));
+				updateSaves();
+			};
+
+			cSaves.appendChild(saveObj);
+		});
+	} else {
+		cSaves.innerHTML = "Local storage is not supported by your browser."
+	}
 }
 
 //Output

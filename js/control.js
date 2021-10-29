@@ -113,7 +113,12 @@ function pressButton() {
 		if (movType === 0) {
 			cRot = movShip.rot;
 		}
-		cursorLoc = updateSector(cursorLoc);
+
+		let NewCurLoc = updateSector(cursorLoc);
+		if (NewCurLoc.length !== 0) {
+			cursorLoc = NewCurLoc;
+		}
+
 		stage = 12;
 		drawBoard();
 	} else if (stage === 12) {
@@ -215,9 +220,13 @@ function back() {
 			stage = 12;
 			break;
 		case 20:
-			let temp = attackList[attackList.length - 1];
-			if (Array.isArray(temp[2])) {
-				attackShip(Players[0].ShipList[temp[0]],[temp[2],temp[3]],temp[1],temp[4],true);
+			let temp = attackList.pop();
+			wType = Players[0].ShipList[temp[0]].Weap[temp[1]].Type;
+			if (wType === "Destruct") {
+				let dShips = temp[2].map((playNum,index) => Players[playNum][temp[3][index]]);
+				attackShip(Players[0].ShipList[temp[0]],dShips,temp[1],temp[4],true);
+			} else if (wType === "Deploying") {
+				attackShip(Players[0].ShipList[temp[0]],0,temp[1],0,true);
 			} else {
 				attackShip(Players[0].ShipList[temp[0]],Players[temp[2]].ShipList[temp[3]],temp[1],temp[4],true);
 			}
@@ -291,13 +300,13 @@ function calculateHit(atkShip = Ship, defShip = Ship, weap = Number) {
 
 	if (aWeap.Type === "Deploying") {
 		const hit = atkShip.rot;
-		location = 0;
+		loc = 0;
 		atkShip.Area.forEach((val, index) => {
 			if (compareArray(val,cursorLoc)) {
-				location = index;
+				loc = index;
 			}
 		});
-		data = [atkShip.number,weap,0,location,hit];
+		data = [atkShip.number,weap,0,loc,hit];
 	} else if (aWeap.Type === "Healing") {
 		let dist = calculateDist(atkShip.location,defShip.location);
 		const hit = 2*(dist <= 1);
@@ -338,7 +347,8 @@ function calculateHit(atkShip = Ship, defShip = Ship, weap = Number) {
 	return data;
 }
 
-function attackShip(atkShip = Ship,defShip,weap = Number,hit = Number,undo = false) {
+function attackShip(atkShip = Ship,dShip,weap = Number,hit = Number,undo = false) {
+	let defShip = dShip;
 	if (weap === -1) {
 		return;
 	}
@@ -352,6 +362,13 @@ function attackShip(atkShip = Ship,defShip,weap = Number,hit = Number,undo = fal
 
 	if (hit < 0) {
 		const results = calculateHit(atkShip, defShip, weap);
+		if (aWeap.Type === "Deploying") defShip = results[3];
+		if (aWeap.Type === "Destruct") {
+			defShip = [];
+			results[2].forEach((val,i) => {
+				defShip.push(Players[val].ShipList[results[3][i]]);
+			});
+		}
 		hit = results[4];
 		attackList.push(results);
 	}
@@ -520,6 +537,7 @@ function endTurn () {
 		nStage = 10;
 		nextTurn();
 	} else if ((stage === 10 || stage === 11) && Players.length > 1) {
+		Players.forEach((player) => player.ShipList.forEach((ship) => ship.finalizeMove()));
 		stage = 8;
 		nStage = 20;
 		let buttons = document.getElementById("Buttons");
@@ -529,6 +547,7 @@ function endTurn () {
 		updateInputBox(); 
 		updateDataString();
 	} else if (stage === 10 || stage === 11) {
+		Players.forEach((player) => player.ShipList.forEach((ship) => ship.finalizeMove()));
 		nStage = 20;
 		nextTurn();
 	} else if (stage === 20 && impulse < impulseCount) {
@@ -554,9 +573,16 @@ function nextTurn () {
 
 	Players.forEach((player) => player.hasMoved = false);
 
+	if (movType === 1) {
+		Players[0].ShipList.forEach(ship => {
+			ship.dX = 0;
+			ship.dY = 0;
+		});
+	}
+
 	deleteShips();
 	if (stage === 10) {
-		Players[0].ShipList.forEach((ship) => ship.finalizeMove());
+		
 	} else if (stage === 20) {
 		impulse = 0;
 		Players.forEach((player) => player.updateAP());
@@ -654,6 +680,7 @@ function updateDataString () {
 	}
 	let output = document.getElementById("Output");
 	output.value = dString;
+	Players[0].moves.push(dString);
 }
 
 function updateInputBox () {

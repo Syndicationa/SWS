@@ -123,11 +123,9 @@
 				<button id="ExportGameSettings" type="button" class="button">Export Game Settings</button>
 				<br>
 				<button id="ImportGameSettings" type="button" class="button" onclick="">Import Game Settings</button>
-				<input id="ImportGameFile" type="file" accept=".txt" style="visibility: hidden;"></button>
+				<input id="ImportGameFile" type="file" accept=".txt" style="visibility: hidden;">
 			</div>
-				<div id="PlayerSettings" class="SettingOptions" hidden>
-					<header><h4>Players</h4></header>
-				</div>
+				<div id="PlayerSettings" class="SettingOptions" hidden></div>
 				<div id="AudioSettings" class="SettingOptions" hidden>
 					<header><h4>Music & Sounds</h4></header>
 					<div id="Sound"><label for="Sounds">Sound Effects:</label><input type="range" min="0" max="10" value="10" id="Sounds"></button></div>
@@ -155,7 +153,27 @@
 					<div id="ControlZoomOut">Zoom Out:<button id="KC9"></button></div>
 				</div>
 				<div id="LoadingSaving" class="SettingOptions" hidden>
-					<header><h4>Load/Save</h4></header>
+					<div id="Save">
+						<h4>Save a Game</h4>
+						Quicksaves allow the player to resume from their current position.
+						While Full Saves only include the history of currently made moves, 
+						which means any move that was made in your current turn will be lost
+						<br>
+						<br>
+						<button id="QS" onclick="createQuickSave()">Create a Quick Save</button>
+						<button id="FS" onclick="createSaveData()">Create a Full Save</button>
+						<br>
+						<br>
+						<button id="DWS" onclick="downloadSaveData()">Download Save Data</button>
+						<button id="LSS" onclick="localSaveData()">Store Save in Browser</button>
+					</div>
+					<div id="Load">
+						<h4>Load a Game</h4>
+						<button id="USave" onclick="">Upload Save</button>
+						<input id="UploadSaveFile" type="file" accept=".txt" style="visibility: hidden;">
+						<h4>Saves stored in browser:</h4>
+						<div id="CurrSaves"></div>
+					</div>
 				</div>
 			</div>
 		</div>

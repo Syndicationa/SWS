@@ -26,6 +26,7 @@ class Player {
 	}
 
 	runMove(str) {
+		this.moves.push(str);
 		this.hasMoved = true;
 		if (str.startsWith("S-")) {
 			const dString = str.substr(2).split(";");
@@ -65,19 +66,31 @@ class Player {
 				const dPlayerNames = JSON.parse(substrs[2]);
 				const dShips = JSON.parse(substrs[3]);
 				const hits = JSON.parse(substrs[4]);
+				const aWeap = atkShip.Weap[Number(substrs[1])];
 				let defShip;
 				let dPlayers;
-				if (Array.isArray(dPlayerNames)) {
+				if (aWeap.Type === "Destruct") {
 					dPlayers = dPlayerNames.map((val) => Players.find((player) => player.Name === val).playerNum);
 					defShip = dPlayers.map((val,index) => Players[val].ShipList[dShips[index]]);
+				} else if (aWeap.Type === "Deploying") {
+					defShip = dShips;
 				} else {
 					dPlayers = Players.find((player) => (player.Name === dPlayerNames)).playerNum;
 					defShip = Players[dPlayers].ShipList[dShips];
 				}
+				this.AP -= aWeap.APCost;
 				console.log(defShip);
 				attackShip(atkShip,defShip,Number(substrs[1]),hits);
 			}
 			attackList = [];
+		} else if (str === "Skip") {
+
+		} else if (str === "Delete") {
+			Players.splice(this.playerNum,1);
+			updatePlayerSettings();
+		} else {
+			this.hasMoved = false;
+			this.moves.pop();
 		}
 		/*storedPlayer[factionIn] = 1;
 		storedData[storeNum][factionIn] = str;
@@ -212,7 +225,7 @@ class Ship {
 		this.moveShip(false);
 	}
 
-	moveShip (val = true) {
+	moveShip (val = true) {	
 		if(this.moved && val) {
 			return;
 		} else {
@@ -233,10 +246,6 @@ class Ship {
 		this.oldposition = copyArray(this.position);
 		this.olSector = copyArray(this.sector);
 		this.moveData = "";
-		if (movType === 1) {
-			this.dX = 0;
-			this.dY = 0;
-		}
 		this.moved = false;
 	}
 
@@ -596,6 +605,8 @@ function setupHTML() {
 
 	//Control Settings
 	updateKeyCodes();
+
+	updateSaves();
 }
 
 const movDataStrs = ["+","-","L","R"];

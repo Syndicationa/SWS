@@ -374,3 +374,49 @@ header {
 hr {
 	width: 15%;
 }
+
+/* Loading and Saving */
+#LoadingSaving {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+}
+
+#Save {
+	width: 50%;
+}
+
+#Save button {
+	box-sizing: border-box;
+	border: 1px #444 solid;
+	margin: 0px;
+	width: 48%;
+	height: 10%
+
+}	
+
+#Load {
+	width: 50%;
+}
+
+#Usave {
+	box-sizing: border-box;
+	border: 1px #444 solid;
+	margin: 0px;
+	width: 96%;
+	height: 10%
+}
+
+#CurrSaves div{
+	width: 96%;
+
+	box-sizing: border-box;
+	border: 1px #444 solid;
+	margin: 0px;
+
+	display: grid;
+	grid-template-columns: 50% 50%;
+	grid-template-rows: 1fr 1fr;
+	grid-template-areas: 'Name Name' 
+						 'Load Delete';
+}
