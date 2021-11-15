@@ -11,9 +11,15 @@ class Player {
 		this.moves = [];
 		this.curAP = 0;
 		this.AP = 0;
+		this.Area = 0;
 	}
 
-	createMoves() {
+	resetPlayer() {
+		this.hasMoved = false;
+		this.calculateArea();
+	}
+
+	createMoves(count) {
 
 	}
 
@@ -22,7 +28,12 @@ class Player {
 	}
 
 	pickMove() {
-
+		const moves = createMoves(10);
+		const moveWeights = moves.map(move => this.weighMove(move));
+		moveWeights.sort((a,b) => a - b);
+		const outMove = moves[moveWeights.indexOf(item => (Math.random() < item))];
+		lastMove = outMove;
+		this.runMove(outMove);
 	}
 
 	runMove(str) {
@@ -133,6 +144,23 @@ class Player {
 			}
 		}
 		return ships;
+	}
+
+	calculateArea() {
+		let maxx = 0;
+		let minx = grSize.reduce((prev,curr) => (prev*curr));
+		let maxy = 0;
+		let miny = minx;
+		this.ShipList.forEach(ship => {
+			let grSz = [...grSize,1]; 
+			let uniX = ship.location.reduce((prev, curr, cIndex) => (prev + curr[0]*grSz[cIndex + 1]), 0);
+			let uniY = ship.location.reduce((prev, curr, cIndex) => (prev + curr[1]*grSz[cIndex + 1]), 0);
+			if (minx > uniX) minx = uniX;
+			if (maxx < uniX) maxx = uniX;
+			if (miny > uniY) miny = uniY;
+			if (maxy > uniY) maxy = uniY; 
+		})
+		this.Area = (maxx - minx)*(maxy - miny);
 	}
 }
 

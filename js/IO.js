@@ -666,6 +666,8 @@ function downloadSaveData () {
 	saveAs(blob, "Save.txt");
 }
 
+let loading = false;
+let sArr = [];
 const upload = document.getElementById("UploadSaveFile");
 document.getElementById("USave").onclick = () => upload.click();
 upload.addEventListener('change', uploadSaveData);
@@ -687,21 +689,27 @@ function loadSaveData(string = String) {
 		console.log(string)
 		let arr = JSON.parse(string);
 		Players = [];
-		stage = 0;
+		if (stage !== 50) stage = 0;
 		arr[0].forEach((player,i) => {
 			Players.push(new Player(i,false, "Astute"))
 		});
 
 		updatePlayerSettings();
 
-		arr.forEach(move => {
+		if (stage === 50) {
+			loading = true;
+			sArr = copyArray(arr);
 			endTurn();
-			Players[0].moves.pop();
-			move.forEach((plmove, j) => {
-				Players[j].runMove(plmove);
+		} else {
+			arr.forEach(move => {
+				endTurn();
+				Players[0].moves.pop();
+				move.forEach((plmove, j) => {
+					Players[j].runMove(plmove);
+				});
+				updateInputBox();
 			});
-			updateInputBox();
-		});
+		}
 
 	} else {
 		string = string.slice(3);
@@ -794,7 +802,7 @@ function updateSaves() {
 
 //Output
 function dispData () {
-	if (stage === 0 || stage === 5 || stage === 8 || stage === 10 || stage === 11 || stage === 20 || stage === 21 || stage === 22 || stage === 23) {
+	if (stage === 0 || stage === 5 || stage === 8 || stage === 10 || stage === 11 || stage === 20 || stage === 21 || stage === 22 || stage === 23 || stage === 50) {
 		dispShipList();
 	} else if (stage === 1) {
 		dispShipTypes();

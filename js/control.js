@@ -559,9 +559,24 @@ function endTurn () {
 		input.style.visibility = "visible";
 		updateInputBox();
 		updateDataString();
+	} else if (stage === 50 && loading) {
+		nStage = 50;
+		sArr.shift().forEach((plmove, j) => {
+			Players[j].runMove(plmove);
+		});
+		if (sArr.length === 0) {
+			loading = false;
+		}
+		updateInputBox();
+	} else if (stage === 50) {
+		nStage = 50;
+		let buttons = document.getElementById("Buttons");
+		let input = document.getElementById("IO");
+		buttons.style.visibility = "hidden";
+		input.style.visibility = "visible";
+		updateInputBox();
+		updateDataString();
 	}
-
-
 }
 
 function nextTurn () {
@@ -608,6 +623,8 @@ function nextTurn () {
 			Players[0].AP -= impulseAP;
 		}
 		stage = 20;
+	} else if (stage === 50) {
+
 	} else {
 		updateImpulse();
 	}
@@ -629,6 +646,12 @@ function checkVictory() {
 			alert("You Win");
 		} else {
 			Players = Players.filter(player => player.ShipList.length > 0);
+		}
+	} else if (gameMode === "Base War") {
+		if (Players[0].ShipList[0].Type !== "Base") {
+			stage = 40;
+			lose = true;
+			alert("You Lose");
 		}
 	}
 }
@@ -677,6 +700,9 @@ function updateDataString () {
 				dString += ";";
 			}
 		});
+		if (dString === "A-") {
+			dString = "Skip";
+		}
 	}
 	let output = document.getElementById("Output");
 	output.value = dString;
