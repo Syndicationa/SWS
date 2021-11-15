@@ -156,18 +156,22 @@ function easterEgg(str) {
 	}
 }
 
-/*$('#GameBoard').click((e) => {
-	let mouseX = e.pageX;
-	console.log(mouseX);
-	let mouseY = e.pageY;
+bcanvas.onclick = (e) => {
+	const mouseX = e.pageX;
+	const mouseY = e.pageY;
+	const CWidth = bcanvas.width;
+	const CHeight = bcanvas.height;
+	const BWidth = bcanvas.getBoundingClientRect().width;
+	const BHeight = bcanvas.getBoundingClientRect().height;
+	const scaleX = CWidth/BWidth;
+	const scaleY = CHeight/BHeight;
 	if (stage === 0 || stage === 5 || stage === 10 || stage === 20 || stage === 22 || stage === 8 || stage === 50) {
-		console.log(mouseX/width);
-		cursorLoc[cLevel][0] = Math.floor(mouseX/width);
-		cursorLoc[cLevel][1] = Math.floor(mouseY/height);
+		cursorLoc[cLevel][0] = Math.floor((mouseX*scaleX)/width);
+		cursorLoc[cLevel][1] = Math.floor((mouseY*scaleY)/height);
+		console.log(cursorLoc);
 	}
 	moveCursor(0,0);
-})*/
-
+};
 
 //Settings
 
